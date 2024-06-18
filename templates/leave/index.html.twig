@@ -1,0 +1,171 @@
+{# templates/leave/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+
+{% block title %}Liste des congés{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    
+    <style>
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+             .table-responsive tr {
+                display: block;
+                width: auto;
+            }                 
+        }
+    </style>
+
+{% endblock %}
+
+{% block body %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {#<h1>Liste des congés</h1>#} 
+    <h1 class="h3 mb-2 text-gray-800">Liste des demandes de congé</h1>
+    
+    
+    {% if not is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('leave_new') }}" class="btn btn-primary">Ajouter un congé</a>
+    {% endif %}
+<!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Demandes de congés</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> 
+
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>ID</th>
+                            <th>Nom Employé</th> <!-- Nouvelle colonne pour le nom de l'employé -->
+                            {#<th>Date_Départ</th>#}
+                            {#<th>Date_Arrivée</th>#}
+                            <th>Dates de congés</th> <!-- Colonne fusionnée -->
+                            <th>Type Congé</th>
+                            <th>Description</th>
+                            <th>Certificat Médical</th>
+                            <th>Statut Congé</th>
+                            <th>Commentaire</th>{# Nouvelle colonne #}
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for leave in leaves %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ leave.id }}</td> 
+                            <td>{{ leave.employee.name }}</td> <!-- Afficher le nom de l'employé -->
+                            {#<td>{{ leave.LeaveFrom|date('Y-m-d') }}</td>#}
+                            {#<td>{{ leave.LeaveTo|date('Y-m-d') }}</td>#}
+                            <td>Du {{ leave.LeaveFrom|date('Y-m-d') }} au {{ leave.LeaveTo|date('Y-m-d') }} inclus</td> <!-- Afficher les dates de congés fusionnées -->
+                            <td> {{ leave.leavetype }} </td>
+                            <td>{{ leave.LeaveDescription }}</td>
+
+                            <td>
+                                    {% if leave.medicalCertificatePath %}
+                                        <!-- Lien de téléchargement du certificat médical -->
+                                        <a href="{{ path('download_file', {'filename': leave.medicalCertificatePath}) }}" class="btn btn-primary btn-sm">Télécharger</a>
+                                    {% else %}
+                                        Aucun
+                                    {% endif %}
+                            </td>
+
+                            <td>
+                                
+                                {% if is_granted('ROLE_ADMIN') %}
+                            
+                                    <form action="{{ path('leave_update_status', {'id': leave.id}) }}" method="post">
+                                        <select name="status" onchange="this.form.submit()">
+                                            <option value="1" {% if leave.leaveStatus == 1 %}selected{% endif %}>En cours</option>
+                                            <option value="2" {% if leave.leaveStatus == 2 %}selected{% endif %}>Approuvé</option>
+                                            <option value="3" {% if leave.leaveStatus == 3 %}selected{% endif %}>Rejeté</option>
+                                        </select>
+                                    </form>
+                                    
+                                {% else %}
+                                        {% if leave.leaveStatus == 1 %}
+                                            En cours
+                                        {% elseif leave.leaveStatus == 2 %}
+                                            Approuvé
+                                        {% elseif leave.leaveStatus == 3 %}
+                                            Rejeté
+                                        {% endif %}
+                            
+                                {% endif %}
+
+                            </td>
+                            <td>
+                                {% if is_granted('ROLE_ADMIN') and leave.leaveStatus == 3 %}
+                                    <form action="{{ path('leave_update_comment', {'id': leave.id}) }}" method="post">
+                                        <textarea name="rejectionComment" required>{{ leave.rejectionComment }}</textarea>
+                                        <button type="submit" class="btn btn-primary">Soumettre</button>
+                                        <input type="hidden" name="_token" value="{{ csrf_token('update_comment' ~ leave.id) }}">
+                                    </form>
+                                {% else %}
+                                    {{ leave.rejectionComment ? leave.rejectionComment : '' }}
+                                {% endif %}
+                            </td>
+
+
+                            <td>
+                                    {# Afficher le bouton de suppression uniquement pour les employés #}
+                                    {% if not is_granted('ROLE_ADMIN')%}
+                                    {% if leave.leaveStatus == 1 %}
+                            
+                                        <form action="{{ path('leave_delete', {'id': leave.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce congé ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ leave.id) }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+                                        </form>
+
+                                    {% endif %}
+                                    {% endif %}
+
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">Aucune demande de congé trouvé.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Assurez-vous que cette sélection correspond à la structure de votre formulaire
+    var statusSelectElements = document.querySelectorAll('select[name="status"]');
+
+    statusSelectElements.forEach(function(selectElement) {
+        selectElement.addEventListener('change', function() {
+            // Trouver le conteneur de commentaire lié à ce sélecteur
+            var rejectionCommentSection = this.closest('td').querySelector('#rejectionCommentSection');
+            // Afficher ou masquer la section de commentaire basée sur la sélection
+            if (this.value === '3') { // Si "Rejeté" est sélectionné
+                rejectionCommentSection.style.display = 'block';
+            } else {
+                rejectionCommentSection.style.display = 'none';
+            }
+            
+        });
+    });
+});
+</script>
+{% endblock %}
+
+
+
+{% endblock %}
+

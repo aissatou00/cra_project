@@ -1,0 +1,96 @@
+{# templates/dashboard/employee_dashboard.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <!-- Row for dashboard cards -->
+    <div class="row">
+        <!-- Profil de l'utilisateur Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Profil de l'utilisateur</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"> Profil</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Référentiel des Congés Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Demande de Congé</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"> Congé</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-suitcase-rolling fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pointage Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Pointage</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">Accès</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+{#
+{% block body %}
+    <aside id="left-panel" class="left-panel">
+        <nav class="navbar navbar-expand-sm navbar-default">
+            <!-- ... -->
+            <div id="main-menu" class="main-menu collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="menu-title">Menu</li>
+                    <li class="menu-item-has-children dropdown">
+                        <a href="{{ path('employee_profile', {'id': app.user.id}) }}"> Profil</a>
+                    </li>
+                    <li class="menu-item-has-children dropdown">
+                        <a href="{{ path('leave_index') }}"> Leave</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+    
+{% endblock %}#}

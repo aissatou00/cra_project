@@ -1,0 +1,61 @@
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un Employé{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">Ajouter un Employé</h1>
+
+    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+    <div class="form-group">
+        {{ form_label(form.mobile) }}
+        {{ form_widget(form.mobile, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.mobile) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.address) }}
+        {{ form_widget(form.address, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.address) }}
+    </div>
+    {#
+    <div class="form-group">
+        {{ form_label(form.birthday) }}
+        {{ form_widget(form.birthday, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.birthday) }}
+    </div>
+    #}
+
+    <div class="form-group">
+        {{ form_label(form.department) }}
+        {{ form_widget(form.department, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.department) }}
+    </div>
+
+    <!-- Ajouter les champs de Personne ici -->
+    <div class="form-group">
+        {{ form_label(form.name) }}
+        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.email) }}
+        {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.email) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.password) }}
+        {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.password) }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Créer</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('employee_index') }}" class="btn btn-link">Retour</a>
+</div>
+{% endblock %}

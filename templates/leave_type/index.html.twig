@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Les Types de Congé</h1>
+    <a href="{{ path('leave_type_new') }}" " class="btn btn-primary">Ajouter un nouveau type de congé</a>
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive"> 
+
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        
+                        <tr>
+                            <th>S.NO</th>
+                            <th>ID</th>
+                            <th>Type Congé</th>
+                            <th>Actions</th>
+                        </tr>
+                        {% for leaveType in leaveTypes %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ leaveType.id }}</td>
+                            <td>{{ leaveType.leaveType }}</td>
+                            <td>
+
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ path('leave_type_edit', {'id': leaveType.id}) }}" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+
+                                    <!-- Le formulaire de suppression -->
+                                    <form action="{{ path('leave_type_delete', {'id': leaveType.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce Type de Congé ?');" class="ms-2">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ leaveType.id) }}">
+                                        <button type="submit" class="btn btn-sm text-danger" style="background: none; border: none;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>   
+                                
+                                {#<a href="{{ path('leave_type_edit', {'id': leaveType.id}) }}" style="color: inherit; text-decoration: none;">
+                                <i class="fas fa-pencil-alt"></i>
+                                </a>#}
+
+                            {#<form action="{{ path('leave_type_delete', {'id': leaveType.id}) }}" method="post">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ leaveType.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>#}
+                                {#<a class="btn-outline-danger flex-shrink- delete-link" href="{{ path('leave_type_delete', {'id': leaveType.id}) }}" data-id="{{ leaveType.id }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de congé ?');">
+                                <i class="fas fa-trash"></i>
+                                </a>#}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

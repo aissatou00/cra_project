@@ -1,0 +1,22 @@
+controllers:
+    resource: ../src/Controller/
+    type: attribute
+department_index:
+    path: /department
+    controller: App\Controller\DepartmentController::index
+
+leave_type_index:
+    path: /leave-type
+    controller: App\Controller\LeaveTypeController::index
+
+employee_index:
+    path: /employee
+    controller: App\Controller\EmployeeController::index
+
+Leave_index:
+    path: /leave
+    controller: App\Controller\LeaveController::index
+
+app_logout:
+    path: /logout
+

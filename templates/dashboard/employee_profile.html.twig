@@ -1,0 +1,47 @@
+{# templates/dashboard/employee_profile.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil de l'Employé{% endblock %}
+
+{% block body %}
+<div class="content pb-0">
+    <div class="animated fadeIn">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header"><strong>Profil de l'Employé</strong></div>
+                    <div class="card-body card-block">
+                        <form method="post">
+                            <div class="form-group">
+                                <label class="form-control-label">Nom</label>
+                                <input type="text" value="{{ employee.name }}" name="name" placeholder="Entrez le nom de l'employé" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">Email</label>
+                                <input type="email" value="{{ employee.username }}" name="email" placeholder="Entrez l'email de l'employé" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">Mobile</label>
+                                <input type="text" value="{{ employee.mobile }}" name="mobile" placeholder="Entrez le mobile de l'employé" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">Département</label>
+                                <input type="text" value="{{ employee.department }}" name="mobile" placeholder="Entrez le mobile de l'employé" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">Adresse</label>
+                                <input type="text" value="{{ employee.address }}" name="address" placeholder="Entrez l'adresse de l'employé" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">Anniversaire</label>
+                                <input type="date" value="{{ employee.birthday|date('Y-m-d') }}" name="birthday" class="form-control" required>
+                            </div>
+                        
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

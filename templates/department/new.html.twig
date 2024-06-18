@@ -1,0 +1,16 @@
+{# templates/department/new.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un nouveau Département{% endblock %}
+
+{% block body %}
+    <h1>Créer un nouveau Département</h1>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button " class="btn btn-primary">Enregistrer</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('department_index') }}">Retour</a>
+{% endblock %}

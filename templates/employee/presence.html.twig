@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Calendrier de Présence{% endblock %}
+
+{% block body %}
+    <h1>Mon Calendrier de Présence</h1>
+
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button class="btn btn-sm" onclick="prevMonth()">Précédent</button>
+            <span>{{ currentMonth }} / {{ currentYear }}</span>
+            <button class="btn btn-sm" onclick="nextMonth()">Suivant</button>
+        </div>
+
+        <table class="table table-bordered calendar-table">
+            <thead>
+                <tr>
+                    <th>Lun</th>
+                    <th>Mar</th>
+                    <th>Mer</th>
+                    <th>Jeu</th>
+                    <th>Ven</th>
+                    {% if currentMonth != 2 %} <th>Sam</th>
+                    {% endif %}
+                    {% if currentMonth == 2 %} <th>Dim</th>
+                    {% else %}
+                        <th>Dim</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in generateCalendarWeeks(currentMonth, currentYear) %}
+                    <tr>
+                        {% for day in week %}
+                            <td class="{% if not day.isCurrentMonth %}calendar-day-disabled{% endif %}">
+                                {{ day.day }}
+                                {% if presenceMap is defined and presenceMap[day.day] is defined %}
+                                    {% if presenceMap[day.day] %}
+                                        <span class="badge bg-success">Présent</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Absent</span>
+                                        {% if showAbsenceDetails is defined and showAbsenceDetails %}
+                                            {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function prevMonth() {
+            // Implement logic to handle navigating to the previous month
+            // Update currentMonth and currentYear variables on the server-side
+            // Reload the page to reflect changes
+        }
+
+        function nextMonth() {
+            // Implement logic to handle navigating to the next month
+            // Update currentMonth and currentYear variables on the server-side
+            // Reload the page to reflect changes
+        }
+    </script>
+{% endblock %}

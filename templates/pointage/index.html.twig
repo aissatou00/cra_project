@@ -1,0 +1,259 @@
+{# templates/pointage/index.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Pointage{% endblock %}
+
+{% block body %}
+ <style>
+    .weekend {
+        background-color: #f0e68c; /* Couleur de fond pour les week-ends */
+    }
+
+    /* Styles pour les appareils avec une largeur maximale de 768px */
+    @media screen and (max-width: 768px) {
+        .table-responsive {
+            /* Ajouter un défilement horizontal */
+            overflow-x: auto;
+        }
+        .form-container {
+            /* Modifier la mise en page pour les appareils mobiles */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .form-container form {
+            /* Redimensionner le formulaire */
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .form-container form select,
+        .form-container form input[type="text"] {
+            /* Ajuster la largeur des champs */
+            width: calc(50% - 5px); /* Divise l'espace en deux colonnes avec un espacement de 5px */
+            margin-bottom: 10px;
+        }
+
+        .form-container form button {
+            /* Ajuster le bouton */
+            width: 100%;
+        }
+    }
+
+    .form-container {
+        display: flex; 
+        justify-content: space-between; /* Assure l'espacement entre les éléments */
+        align-items: center; /* Centre les éléments verticalement */
+        flex-wrap: wrap; /* Permet aux éléments de passer à la ligne en dessous si l'espace est insuffisant */
+        margin-bottom: 20px; /* Espacement sous les formulaires */
+    }
+    .form-container form {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espacement entre les éléments du formulaire */
+    }
+    /* Styles additionnels pour mieux visualiser les formulaires */
+    .form-container form {
+        margin-right: 20px;
+    }
+
+    /* Style général pour le tableau */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto; /* Permet le défilement horizontal si nécessaire */
+    }
+
+    /* Ajustement des colonnes du tableau */
+    th, td {
+        min-width: 100px; /* Définit une largeur minimale pour toutes les cellules */
+        text-align: left; /* Alignement du texte à gauche */
+        padding: 8px; /* Espacement autour du texte dans la cellule */
+    }
+    </style>
+
+
+
+    {#affiche le message flash d'erreur : aucune donnée de pointage n'est soumise#}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+
+    {#affiche le message flash de succès#}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+
+
+    {#script pour empêcher à l'utilisateur de cocher les cases présence et absence pour la même date#}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('pointageForm').addEventListener('submit', function(e) {
+            let errors = [];
+            
+            document.querySelectorAll('tr.date-row').forEach(row => {
+                const date = row.getAttribute('data-date'); // S'assurer que ceci récupère correctement la date
+                const isCheckedPresent = row.querySelector('input.present-checkbox').checked;
+                const isCheckedAbsent = row.querySelector('input.absent-checkbox').checked;
+                
+                if (isCheckedPresent && isCheckedAbsent) {
+                    errors.push(`Vous ne pouvez pas marquer la présence et l'absence pour la date : ${date}.`);
+                }
+                
+                if (!row.classList.contains('weekend') && !isCheckedPresent && !isCheckedAbsent) {
+                    errors.push(`Vous devez cocher présence ou absence pour la date : ${date}.`);
+                }
+            });
+
+            if (errors.length > 0) {
+                e.preventDefault(); // Empêche la soumission du formulaire
+                alert(errors.join('\n'));
+            }
+        });
+    });
+
+    </script>
+
+
+
+    {#script pour imposer à l'utilisateur de sélectionner une catégorie d'absence#}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('pointageForm');
+        form.addEventListener('submit', function(e) {
+            let hasError = false;
+            document.querySelectorAll('.absent-checkbox').forEach(function(checkbox) {
+                const date = checkbox.name.match(/\[(.*?)\]/)[1];
+                const select = document.querySelector(`select[name="categorieAbsence[${date}]"]`);
+                if (checkbox.checked && (!select || select.value === "")) {
+                    alert(`Veuillez sélectionner une catégorie d'absence pour la date : ${date}`);
+                    hasError = true;
+                }
+            });
+
+            if (hasError) {
+                e.preventDefault(); // Empêche la soumission du formulaire
+            }
+        });
+    });
+    </script>
+
+
+    {% if isAdmin %}
+        <p>Affichage des pointages de tous les employés</p>
+    {% else %}
+        <p>VOTRE POINTAGE POUR CE MOIS</p>
+    {% endif %}
+
+    <div class="form-container"> 
+        {# Formulaire de sélection du mois et de l'année#}   
+        <form action="{{ path('pointage_index') }}" method="get">
+            <select name="year">
+                {% for y in 2020..2030 %}
+                    <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+            <select name="month">
+            {% set months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+            {% for m in 1..12 %}
+                <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ months[m-1] }}</option>
+            {% endfor %}
+            </select>
+            <button type="submit" class=" btn-primary">Afficher</button>
+        </form>
+
+        {%if isAdmin%}
+        {# Formulaire de filtrage par nom #}
+        <form action="{{ path('pointage_index') }}" method="get">
+            <input type="text" name="filterName" placeholder="Filtrer par nom" value="{{ filterName }}">
+            <input type="hidden" name="month" value="{{ month }}">
+            <input type="hidden" name="year" value="{{ year }}">
+            <button type="submit" class=" btn-primary">Filtrer</button>
+        </form>
+        {%endif%}
+    </div>
+
+    <form id="pointageForm" action="{{ path('pointage_store') }}" method="post">
+        <input type="hidden" name="month" value="{{ month }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+
+                        {% if isAdmin %}
+                        <th>Employé</th> 
+                        {% endif %}
+                        <th>Jour</th> <!-- Nouvelle colonne pour le jour de la semaine -->
+                        <th>Date</th>
+                        <th>Présence</th>
+                        <th>Absence</th> 
+                        <th>Commentaires</th>
+                        <th>Catégorie d'Absence</th>
+                        
+                    </tr>
+                </thead>
+                
+                <tbody>
+                            {% if isAdmin %}
+                                {% for date, dayOfWeek in dates %}
+                                    {% for employee in employees %}
+                                        {% set pointage = pointagesFiltered[employee.id][date|date('Y-m-d')] ?? null %}
+                                            <tr class="date-row {{ dayOfWeek == 'Samedi' or dayOfWeek == 'Dimanche' ? 'weekend' : '' }}" data-date="{{ date|date('Y-m-d') }}">
+                                                <td>{{ employee.name }}</td>
+                                                <td>{{ dayOfWeek }}</td>
+                                                <td>{{ date|date('d-m-Y') }}</td>
+                                                <td>{{ pointage ? (pointage.isPresent ? 'Présent' : 'Absent') : 'Non disponible' }}</td>
+                                                <td>{{ pointage ? (not pointage.isPresent ? 'Oui' : 'Non') : 'Non applicable' }}</td>
+                                                <td>{{ pointage ? pointage.comments : 'Aucun commentaire' }}</td>
+                                                <td>{{ pointage and pointage.CategorieAbsence ? pointage.CategorieAbsence : 'N/A' }}</td>
+                                            </tr>    
+                                    {% else %}
+                                        <tr>
+                                            <td>{{ employee.name }}</td>
+                                            <td colspan="6">Aucun pointage disponible</td>
+                                        </tr>
+                                                        
+                                    {% endfor %}
+                                {% endfor %}    
+
+                            {% else %}
+                                {% for date, dayOfWeek in dates %}
+                                    {% set pointage = pointagesByDate[date|date('Y-m-d')] ?? null %}
+                                        <tr class="date-row {{ dayOfWeek == 'Samedi' or dayOfWeek == 'Dimanche' ? 'weekend' : '' }}" data-date="{{ date|date('Y-m-d') }}">
+                                            <td>{{ dayOfWeek }}</td>
+                                            <td>{{ date|date('d-m-Y') }}</td>
+                                            <td><input type="checkbox" class="present-checkbox" name="attendance[{{ date|date('Y-m-d') }}]" value="1" {% if pointage and pointage.isPresent %}checked{% endif %}></td>
+                                            <td><input type="checkbox" class="absent-checkbox" name="leave[{{ date|date('Y-m-d') }}]" value="1" {% if pointage and not pointage.isPresent %}checked{% endif %}></td>
+                                            <td><input type="text" name="comments[{{ date|date('Y-m-d') }}]" value="{{ pointage ? pointage.comment : '' }}"></td>
+                                            <td>
+                                                <select name="categorieAbsence[{{ date|date('Y-m-d') }}]">
+                                                    <option value="">Sélectionnez</option>
+                                                    {% for leaveType in leaveTypes %}
+                                                        <option value="{{ leaveType.id }}" {% if pointage and pointage.leaveType == leaveType.id %}selected{% endif %}>{{ leaveType.leaveType }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                {% endfor %}
+
+                            {% endif %}           
+                        </tr>      
+                </tbody>
+            </table>
+        </div>    
+
+        {% if not isAdmin %}           
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('identifiant_unique_pour_le_formulaire') }}">
+        <button type="submit" " class="btn btn-primary">Soumettre</button>
+        {% endif %}
+        
+    </form>
+{% endblock %}
