@@ -27,7 +27,7 @@ class EmployeeController extends AbstractController
         ]);
     }
 
-//définissons la propriété $security(ctd injection du service Security qui est nécessaire pour accéder à l'utilisateur actuellemnt connecté $this->security->getUser())
+
     private $security;
 
     public function __construct(Security $security)
@@ -68,7 +68,7 @@ class EmployeeController extends AbstractController
             // Hasher le mot de passe avant de le définir sur l'entité
             $plaintextPassword = $form->get('password')->getData();
 
-            if (!empty($plaintextPassword)) {
+              if (!empty($plaintextPassword)) {
                 $hashedPassword = $passwordHasher->hashPassword($employee, $plaintextPassword);
                 $employee->setPassword($hashedPassword);
             } else {
