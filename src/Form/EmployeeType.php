@@ -15,17 +15,32 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use App\Entity\Personne;
 use App\Entity\Department;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-
-
-
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class EmployeeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('mobile')
-            ->add('address', TextType::class, ['label' => 'Adresse'])
+            ->add('mobile', TextType::class, [
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'Le numéro de mobile ne peut pas être vide.']),
+                    new Assert\Regex([
+                        'pattern' => '/^\d+$/',
+                        'message' => 'Le numéro de mobile ne doit contenir que des chiffres.'
+                    ])
+                ],
+                'label' => 'Numéro de mobile',
+            ])
+            ->add('address', TextType::class, [
+                'constraints' => [
+                new Assert\NotBlank(['message' => 'L\'adresse ne peut pas être vide.']),
+                new Assert\Length(['max' => 255]),
+            ],
+            'label' => 'Adresse',
+        ])
             //->add('birthday', DateType::class, ['label' => 'Anniversaire'])parceque avec cette méthode, la date d'anniversaire est limitée à 2019
            /// ->add('birthday', DateType::class, [
             ///    'widget' => 'single_text', // Utiliser le widget HTML5
@@ -44,17 +59,43 @@ class EmployeeType extends AbstractType
            // Ajouter les champs de l'entité Personne directement
             ->add('name', TextType::class, [
                 'mapped' => false, // Ne pas mapper automatiquement
-                'label' => 'Prenom',
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'Le prénom ne peut pas être vide.']),
+                    new Assert\Regex([
+                        'pattern' => '/^[a-zA-Z]+$/',
+                        'message' => 'Le prénom ne doit contenir que des lettres.',
+                    ])
+                ],
+                'label' => 'Prénom',
             ])
             ->add('email', EmailType::class, [
                 'mapped' => false, // Ne pas mapper automatiquement
-                'label' => 'Email',
                 'attr' => ['autocomplete' => 'off'], // Désactive l'autocomplétion
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'L\'email ne peut pas être vide.']),
+                    new Assert\Email(['message' => 'Veuillez entrer une adresse email valide.']),
+                ],
+                'label' => 'Email',
             ])
-            ->add('password', PasswordType::class, [
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
                 'mapped' => false, // Ne pas mapper automatiquement
-                'label' => 'Mot de passe',
+                'required' => true,
                 'attr' => ['autocomplete' => 'new-password'], // Désactive l'autocomplétion et suggère un nouveau mot de passe
+                'first_options' => [
+                    'constraints' => [
+                        new Assert\NotBlank(['message' => 'Le mot de passe ne peut pas être vide.']),
+                        new Assert\Regex([
+                            'pattern' => '/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/',
+                            'message' => 'Le mot de passe doit contenir au moins 12 caractères, un nombre, une majuscule, et un caractère spécial.',
+                        ]),
+                    ],
+                    'label' => 'Mot de passe',
+                ],
+                'second_options' => [
+                    'label' => 'Confirmer le mot de passe',
+                ],
+                'invalid_message' => 'Les mots de passe doivent correspondre.',
             ]);
 
 

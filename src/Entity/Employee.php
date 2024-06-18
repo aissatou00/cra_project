@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 class Employee extends Personne
@@ -14,9 +15,19 @@ class Employee extends Personne
    
 
     #[ORM\Column(length: 15, nullable: true)]
+    #[Assert\NotBlank(message: "Le numéro de mobile ne peut pas être vide.")]
+    #[Assert\Regex(
+        pattern: '/^\d+$/',
+        message: 'Le numéro de mobile ne doit contenir que des chiffres.'
+    )]
     private ?int $mobile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "L'adresse ne peut pas être vide.")]
+    #[Assert\Regex(
+        pattern: '/^[\w\s-]+$/',
+        message: "L'adresse doit contenir des lettres, des chiffres, des espaces et des tirets uniquement."
+    )]
     private ?string $address = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -121,34 +132,34 @@ class Employee extends Personne
     }
 
 
-/**
- * @return Collection<int, Pointage>
- */
-public function getPointages(): Collection
-{
-    return $this->pointages;
-}
-
-public function addPointage(Pointage $pointage): static
-{
-    if (!$this->pointages->contains($pointage)) {
-        $this->pointages->add($pointage);
-        $pointage->setEmployee($this);
+    /**
+     * @return Collection<int, Pointage>
+     */
+    public function getPointages(): Collection
+    {
+        return $this->pointages;
     }
 
-    return $this;
-}
-
-public function removePointage(Pointage $pointage): static
-{
-    if ($this->pointages->removeElement($pointage)) {
-        // set the owning side to null (unless already changed)
-        if ($pointage->getEmployee() === $this) {
-            $pointage->setEmployee(null);
+    public function addPointage(Pointage $pointage): static
+    {
+        if (!$this->pointages->contains($pointage)) {
+            $this->pointages->add($pointage);
+            $pointage->setEmployee($this);
         }
+
+        return $this;
     }
 
-    return $this;
-}
+    public function removePointage(Pointage $pointage): static
+    {
+        if ($this->pointages->removeElement($pointage)) {
+            // set the owning side to null (unless already changed)
+            if ($pointage->getEmployee() === $this) {
+                $pointage->setEmployee(null);
+            }
+        }
+
+        return $this;
+    }
 
 }

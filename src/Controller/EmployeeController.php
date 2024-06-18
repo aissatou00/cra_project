@@ -67,8 +67,15 @@ class EmployeeController extends AbstractController
             $employee->setUsername($form->get('email')->getData());
             // Hasher le mot de passe avant de le définir sur l'entité
             $plaintextPassword = $form->get('password')->getData();
-            $hashedPassword = $passwordHasher->hashPassword($employee, $plaintextPassword);
-            $employee->setPassword($hashedPassword);
+
+            if (!empty($plaintextPassword)) {
+                $hashedPassword = $passwordHasher->hashPassword($employee, $plaintextPassword);
+                $employee->setPassword($hashedPassword);
+            } else {
+                // Gérer le cas où le champ du mot de passe est vide
+                $this->addFlash('error', 'Le mot de passe ne peut pas être vide.');
+                return $this->redirectToRoute('employee_new'); // Rediriger vers le formulaire
+            }
             // Définition des autres attributs de l'employé
             $employee->setRole('2'); // '2' est utilisé pour les employés normaux, ajustez selon votre système de rôles
             
